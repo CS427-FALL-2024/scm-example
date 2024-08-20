@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="scm-example">
+    <property environment="env"/>
+    <property name="junit.output.dir" value="target/ant-reports"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="scm-example.classpath">
+        <pathelement location="target/test-classes"/>
+        <pathelement location="target/classes"/>
+        <pathelement location="ant-libs/junit-4.8.1.jar"/>
+    </path>
+    <!--
+    # Task for cleaning all files generated from last Ant build 
+    -->
+    <target name="clean">
+        <delete dir="target/test-classes"/>
+        <delete dir="target/classes"/>
+    </target>
+    <!--
+    # Compile all the Java source files from source to target directories 
+    -->
+    <target name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <mkdir dir="target/classes"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" includeantruntime="false" source="${source}" target="${target}" encoding="UTF-8">
+            <src path="src/main/java"/>
+            <include name="**/*.java"/>
+            <classpath refid="scm-example.classpath"/>
+        </javac>
+    </target>
+    <!--                                                                                                                   
+    # Compile all the Java test files from source to target directories                                                  
+    -->
+    <target name="build-test" depends="build">
+        <mkdir dir="target/test-classes"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/test-classes" includeantruntime="false" source="${source}" target="${target}" encoding="UTF-8">
+            <src path="src/test/java"/>
+            <include name="**/*.java"/>
+            <classpath refid="scm-example.classpath"/>
+        </javac>
+    </target>
+    <!--                                                                                                                   
+    # Run all the tests and store the junit report in the ${junit.output.dir}/html directory           
+    -->
+    <target name="test" depends="build-test">
+        <mkdir dir="${junit.output.dir}"/>
+        <mkdir dir="${junit.output.dir}/html"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <batchtest todir="${junit.output.dir}">
+                <fileset dir="src/test/java">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+            <classpath refid="scm-example.classpath"/>
+        </junit>
+        <junitreport>
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>  
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}/html"/>
+	</junitreport>
+	<echo message="Please find the final JUnit test report at: ${junit.output.dir}/html/index.html"/>
+    </target>
+</project>
